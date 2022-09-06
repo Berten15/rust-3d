@@ -9,7 +9,7 @@ edition = "2021"
 bevy = { version = "0.8.1", features = ["dynamic"] }
 
 # Enable small amount of optimization in debug mode
-[pofile.dev]
+[profile.dev]
 opt-level = 1
 
 # Enable high optimization for dependencies (incl Bevy), but not my code
