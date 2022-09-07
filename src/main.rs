@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::{WorldInspectorPlugin, WorldInspectorParams};
 
+mod components;
+
 pub const HEIGHT: f32 = 720.0;
 pub const WIDTH: f32 = 1280.0;
 
@@ -19,6 +21,7 @@ fn main() {
         // Systems
         .add_startup_system(spawn_basic_scene)
         .add_startup_system(spawn_camera)
+        .add_system(movement_system)
 
         // Plugins
         .add_plugins(DefaultPlugins)
@@ -67,11 +70,18 @@ fn spawn_basic_scene(
         transform: Transform::from_xyz(0.0, 0.5, 0.0),
         ..default()
     })
-    .insert(Name::new("Cube"));
+    .insert(Name::new("Cube"))
+    .insert(components::Speed(Vec3::new(5.0, 0.0, 0.0)));
 }
 
 fn toggle_inspector(input: Res<Input<KeyCode>>, mut world_inspector_params: ResMut<WorldInspectorParams>) {
     if input.just_pressed(KeyCode::Escape) {
         world_inspector_params.enabled = !world_inspector_params.enabled;
+    }
+}
+
+fn movement_system(mut movables: Query<(&components::Speed, &mut Transform)>) {
+    for (speed, mut transform) in movables.iter_mut(){
+        transform.translation += speed.0/100.0;
     }
 }
