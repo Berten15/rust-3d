@@ -2,6 +2,8 @@ use bevy::prelude::*;
 use bevy_inspector_egui::{WorldInspectorPlugin, WorldInspectorParams};
 
 mod components;
+mod physics;
+mod entities::minecart;
 
 pub const HEIGHT: f32 = 720.0;
 pub const WIDTH: f32 = 1280.0;
@@ -19,9 +21,11 @@ fn main() {
         })
     
         // Systems
+        .add_startup_system(minecart::spawn_minecart)
         .add_startup_system(spawn_basic_scene)
         .add_startup_system(spawn_camera)
-        .add_system(movement_system)
+        .add_system(physics::movement_system)
+        .add_system(physics::acceleration_system)
 
         // Plugins
         .add_plugins(DefaultPlugins)
@@ -64,14 +68,7 @@ fn spawn_basic_scene(
     })
     .insert(Name::new("Ground"));
 
-    commands.spawn_bundle(PbrBundle {
-        mesh: meshes.add(Mesh::from(shape::Cube { size: 1.0})),
-        material: materials.add(Color::rgb(1.0, 0.65, 0.0).into()),
-        transform: Transform::from_xyz(0.0, 0.5, 0.0),
-        ..default()
-    })
-    .insert(Name::new("Cube"))
-    .insert(components::Speed(Vec3::new(5.0, 0.0, 0.0)));
+
 }
 
 fn toggle_inspector(input: Res<Input<KeyCode>>, mut world_inspector_params: ResMut<WorldInspectorParams>) {
@@ -80,8 +77,3 @@ fn toggle_inspector(input: Res<Input<KeyCode>>, mut world_inspector_params: ResM
     }
 }
 
-fn movement_system(mut movables: Query<(&components::Speed, &mut Transform)>) {
-    for (speed, mut transform) in movables.iter_mut(){
-        transform.translation += speed.0/100.0;
-    }
-}
